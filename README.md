@@ -73,7 +73,9 @@ Desarrollar un sistema de gestión para una clínica médica que permita:
   - `agendar_turno(dni: str, matricula: str, fecha_hora: datetime)`  
   - `emitir_receta(dni: str, matricula: str, medicamentos: list[str])`  
   - `obtener_historia_clinica(dni: str) → HistoriaClinica`  
-  - `obtener_turnos() → list[Turno]`  
+  - `obtener_turnos() → list[Turno]`
+  - `obtener_pacientes() → list[Paciente]`
+  - `obtener_medicos() → list[Medico]` 
 
 #### Validaciones en `Clinica.agendar_turno`  
 - Paciente y médico deben existir.  
