@@ -1,4 +1,4 @@
-# 🏥 Sistema de Gestión de Turnos para una Clínica
+# 🏥 Sistema de Gestión para una Clínica
 
 ## 📝 Consigna 
 
