@@ -19,10 +19,10 @@ class Clinica:
          - turnos:   lista de Turno
          - historias_clinicas: mapea DNI → HistoriaClinica
         """
-        self._pacientes = {}
-        self._medicos = {}
-        self._turnos = []
-        self._historias_clinicas = {}
+        self.__pacientes__ = {}
+        self.__medicos__ = {}
+        self.__turnos__ = []
+        self.__historias_clinicas__ = {}
 
     def agregar_paciente(self, paciente):
         """
@@ -37,9 +37,9 @@ class Clinica:
         """
         dni = paciente.obtener_dni()
         # Guardamos el paciente bajo su DNI
-        self._pacientes[dni] = paciente
+        self.__pacientes__[dni] = paciente
         # Creamos la historia clínica vacía para este paciente
-        self._historias_clinicas[dni] = HistoriaClinica(paciente)
+        self.__historias_clinicas__[dni] = HistoriaClinica(paciente)
 
     def agregar_medico(self, medico):
         """
@@ -52,7 +52,7 @@ class Clinica:
             - Añade el objeto Medico al diccionario _medicos por su matrícula.
         """
         mat = medico.obtener_matricula()
-        self._medicos[mat] = medico
+        self.__medicos__[mat] = medico
 
     def agendar_turno(self, dni, matricula, fecha_hora):
         """
@@ -69,27 +69,27 @@ class Clinica:
             TurnoDuplicadoError: si ya existe un turno para ese médico en esa fecha y hora.
         """
         # Validar existencia de paciente
-        if dni not in self._pacientes:
+        if dni not in self.__pacientes__:
             raise PacienteNoExisteError(f"No existe paciente DNI {dni}.")
         # Validar existencia de médico
-        if matricula not in self._medicos:
+        if matricula not in self.__medicos__:
             raise MedicoNoExisteError(f"No existe médico Matrícula {matricula}.")
 
         # Validar que no haya duplicado: mismo médico y misma fecha_hora
-        for t in self._turnos:
+        for t in self.__turnos__:
             # obtener_fecha_hora() compara fecha y hora exactos
             if (t.obtener_fecha_hora() == fecha_hora
-                and t._medico.obtener_matricula() == matricula):
+                and t.__medico__.obtener_matricula() == matricula):
                 raise TurnoDuplicadoError("Turno duplicado para ese médico/hora.")
 
         # Recuperar objetos
-        paciente = self._pacientes[dni]
-        medico    = self._medicos[matricula]
+        paciente = self.__pacientes__[dni]
+        medico    = self.__medicos__[matricula]
         # Crear y almacenar el nuevo turno
         nuevo = Turno(paciente, medico, fecha_hora)
-        self._turnos.append(nuevo)
+        self.__turnos__.append(nuevo)
         # Añadir el turno a la historia clínica del paciente
-        self._historias_clinicas[dni].agregar_turno(nuevo)
+        self.__historias_clinicas__[dni].agregar_turno(nuevo)
 
     def emitir_receta(self, dni, matricula, medicamentos):
         """
@@ -105,17 +105,17 @@ class Clinica:
             MedicoNoExisteError: si la matrícula no está registrada.
         """
         # Verificar que paciente exista
-        if dni not in self._pacientes:
+        if dni not in self.__pacientes__:
             raise PacienteNoExisteError(f"No existe paciente DNI {dni}.")
         # Verificar que médico exista
-        if matricula not in self._medicos:
+        if matricula not in self.__medicos__:
             raise MedicoNoExisteError(f"No existe médico Matrícula {matricula}.")
 
-        paciente = self._pacientes[dni]
-        medico    = self._medicos[matricula]
+        paciente = self.__pacientes__[dni]
+        medico    = self.__medicos__[matricula]
         # Crear la receta y añadirla a la historia clínica
         receta = Receta(paciente, medico, medicamentos)
-        self._historias_clinicas[dni].agregar_receta(receta)
+        self.__historias_clinicas__[dni].agregar_receta(receta)
 
     def obtener_historia_clinica(self, dni):
         """
@@ -130,9 +130,9 @@ class Clinica:
         Excepciones:
             PacienteNoExisteError: si no existe historia clínica para ese DNI.
         """
-        if dni not in self._historias_clinicas:
+        if dni not in self.__historias_clinicas__:
             raise PacienteNoExisteError(f"No hay historia clínica para DNI {dni}.")
-        return self._historias_clinicas[dni]
+        return self.__historias_clinicas__[dni]
 
     def obtener_turnos(self):
         """
@@ -141,7 +141,7 @@ class Clinica:
         Retorno:
             list[Turno]: copia de la lista interna de turnos.
         """
-        return list(self._turnos)
+        return list(self.__turnos__)
 
 
 
@@ -153,7 +153,7 @@ class Clinica:
             list[Paciente]: copia de la lista de objetos Paciente.
         """
         # Tomamos los valores del diccionario _pacientes y devolvemos una copia de la lista
-        return list(self._pacientes.values())
+        return list(self.__pacientes__.values())
 
 
 
@@ -165,4 +165,4 @@ class Clinica:
             list[Medico]: copia de la lista de objetos Medico.
         """
         # Tomamos los valores del diccionario _medicos y devolvemos una copia de la lista
-        return list(self._medicos.values())
+        return list(self.__medicos__.values())

@@ -11,7 +11,7 @@ from excepciones.excepciones import (
 class CLI:
 
     def __init__(self):
-        self._clinica = Clinica()
+        self.__clinica__= Clinica()
 
     def mostrar_menu(self):
         """
@@ -69,7 +69,7 @@ class CLI:
         fn = input("F. Nac. (dd/mm/aaaa): ").strip()
         paciente = Paciente(nombre, dni, fn)
         # La validación de duplicados o formato de datos recae en Clinica
-        self._clinica.agregar_paciente(paciente)
+        self.__clinica__.agregar_paciente(paciente)
         print("Paciente registrado.")
 
     def _agregar_medico(self):
@@ -85,7 +85,7 @@ class CLI:
         mat = input("Matrícula: ").strip()
         esp = input("Especialidad: ").strip()
         medico = Medico(nombre, mat, esp)
-        self._clinica.agregar_medico(medico)
+        self.__clinica__.agregar_medico(medico)
         print("Médico registrado.")
 
     def _agendar_turno(self):
@@ -105,7 +105,7 @@ class CLI:
         fs = input("Fecha y hora (dd/mm/aaaa HH:MM): ").strip()
         try:
             fh = datetime.strptime(fs, "%d/%m/%Y %H:%M")
-            self._clinica.agendar_turno(dni, mat, fh)
+            self.__clinica__.agendar_turno(dni, mat, fh)
             print("Turno agendado.")
         except ValueError:
             # Error de parseo de fecha
@@ -128,7 +128,7 @@ class CLI:
         # Convertimos la cadena en lista y limpiamos espacios
         medicamentos = [m.strip() for m in meds_input.split(',') if m.strip()]
         try:
-            self._clinica.emitir_receta(dni, mat, medicamentos)
+            self.__clinica__.emitir_receta(dni, mat, medicamentos)
             print("Receta emitida.")
         except (PacienteNoExisteError, MedicoNoExisteError) as e:
             print("Error:", e)
@@ -140,7 +140,7 @@ class CLI:
         """
         dni = input("DNI paciente: ").strip()
         try:
-            historia = self._clinica.obtener_historia_clinica(dni)
+            historia = self.__clinica__.obtener_historia_clinica(dni)
             print(historia)  # HistoriaClinica implementa __str__
         except PacienteNoExisteError as e:
             print("Error:", e)
@@ -150,7 +150,7 @@ class CLI:
         Muestra todos los turnos agendados. Si no hay ningún turno,
         informa al usuario en pantalla.
         """
-        turnos = self._clinica.obtener_turnos()
+        turnos = self.__clinica__.obtener_turnos()
         if not turnos:
             print("No hay turnos.")
         else:
@@ -162,7 +162,7 @@ class CLI:
         Muestra todos los pacientes registrados. Requiere que la clase Clinica
         tenga un método obtener_pacientes() que devuelva lista de Paciente.
         """
-        pacientes = self._clinica.obtener_pacientes()
+        pacientes = self.__clinica__.obtener_pacientes()
         if not pacientes:
             print("No hay pacientes.")
         else:
@@ -174,7 +174,7 @@ class CLI:
         Muestra todos los médicos registrados. Requiere que la clase Clinica
         tenga un método obtener_medicos() que devuelva lista de Medico.
         """
-        medicos = self._clinica.obtener_medicos()
+        medicos = self.__clinica__.obtener_medicos()
         if not medicos:
             print("No hay médicos.")
         else:

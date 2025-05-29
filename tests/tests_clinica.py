@@ -47,7 +47,7 @@ class TestClinica(unittest.TestCase):
         historia = self.clinica.obtener_historia_clinica(self.paciente.obtener_dni())
         recetas = historia.obtener_recetas()
         self.assertEqual(len(recetas), 1)
-        self.assertListEqual(recetas[0]._medicamentos, medicamentos)
+        self.assertListEqual(recetas[0].__medicamentos__, medicamentos)
 
     def test_emitir_receta_paciente_inexistente(self):
         with self.assertRaises(PacienteNoExisteError):

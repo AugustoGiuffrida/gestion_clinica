@@ -1,26 +1,27 @@
 class HistoriaClinica:
     def __init__(self, paciente):
-        self._paciente = paciente
-        self._turnos = []
-        self._recetas = []
+        self.__paciente__ = paciente
+        self.__turnos__ = []
+        self.__recetas__ = []
 
     def agregar_turno(self, turno):
-        self._turnos.append(turno)
+        self.__turnos__.append(turno)
 
     def agregar_receta(self, receta):
-        self._recetas.append(receta)
+        self.__recetas__.append(receta)
 
     def obtener_turnos(self):
-        return list(self._turnos)
+        return list(self.__turnos__)
 
     def obtener_recetas(self):
-        return list(self._recetas)
+        return list(self.__recetas__)
 
     def __str__(self):
-        out = [f"--- Historia Clínica de {self._paciente} ---", "Turnos:"]
-        for t in self._turnos:
+        out = [f"--- Historia Clínica de {self.__paciente__} ---", "Turnos:"]
+        for t in self.__turnos__:
             out.append(f"  • {t}")
         out.append("Recetas:")
-        for r in self._recetas:
+        for r in self.__recetas__:
+
             out.append(f"  • {r}")
         return "\n".join(out)
