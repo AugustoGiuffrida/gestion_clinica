@@ -128,6 +128,26 @@ class Clinica:
             )
         return especialidad
 
+    def validar_especialidad_en_dia(self, medico, especialidad_solicitada, dia_semana):
+        """
+        Verifica que el médico atienda la especialidad solicitada en el día indicado.
+
+        Parámetros:
+            medico (Medico): Instancia del médico.
+            especialidad_solicitada (str): Especialidad requerida.
+            dia_semana (str): Día de la semana (en español).
+
+        Excepciones:
+            EspecialidadNoDisponibleError: Si el médico no atiende esa especialidad ese día.
+        """
+        especialidad_disp = self.obtener_especialidad_disponible(medico, dia_semana)
+
+        if not especialidad_disp or especialidad_disp.lower() != especialidad_solicitada.lower():
+            raise EspecialidadNoDisponibleError(
+                f"El médico {medico.obtener_matricula()} no atiende como {especialidad_solicitada} el día {dia_semana}."
+            )
+    
+
     def validar_turno_no_duplicado(self, matricula, fecha_hora):
         """
         Verifica que no exista ya un turno con el mismo médico en la misma fecha y hora.
@@ -145,7 +165,7 @@ class Clinica:
                 raise TurnoDuplicadoError("Turno duplicado para ese médico/hora.")
 
 
-    def agendar_turno(self, dni, matricula, fecha_hora):
+    def agendar_turno(self, dni, matricula, esp,fecha_hora):
         """
         Agenda un turno para un paciente con un médico en una fecha y hora específicas.
 
@@ -170,6 +190,8 @@ class Clinica:
         dia_semana = self.obtener_dia_semana_en_espanol(fecha_hora)
 
         especialidad = self.obtener_especialidad_disponible(medico, dia_semana)
+
+        self.validar_especialidad_en_dia(medico, esp, dia_semana)
 
         self.validar_turno_no_duplicado(matricula, fecha_hora)
 
