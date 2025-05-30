@@ -1,11 +1,13 @@
 from datetime import datetime
 from clinica import Clinica
 from modelos.paciente import Paciente
+from modelos.especialidad import Especialidad
 from modelos.medico import Medico
 from excepciones.excepciones import (
     PacienteNoExisteError,
     MedicoNoExisteError,
-    TurnoDuplicadoError
+    TurnoDuplicadoError,
+    EspecialidadNoDisponibleError
 )
 
 class CLI:
@@ -24,15 +26,15 @@ class CLI:
             print("1) Agregar paciente")
             print("2) Agregar médico")
             print("3) Agendar turno")
-            print("4) Emitir receta")
-            print("5) Ver historia clínica")
-            print("6) Ver todos los turnos")
-            print("7) Ver todos los pacientes")
-            print("8) Ver todos los médicos")
-            print("9) Salir")
+            print("4) Agregar especialidad")
+            print("5) Emitir receta")
+            print("6) Ver historia clínica")
+            print("7) Ver todos los turnos")
+            print("8) Ver todos los pacientes")
+            print("9) Ver todos los médicos")
+            print("10) Salir")
             op = input("Opción: ").strip()
 
-            # Mapeo claro de opciones a métodos, sin lógica de negocio aquí
             if op == "1":
                 self._agregar_paciente()
             elif op == "2":
@@ -40,16 +42,18 @@ class CLI:
             elif op == "3":
                 self._agendar_turno()
             elif op == "4":
-                self._emitir_receta()
+                self.agregar_especialidad_a_medico()
             elif op == "5":
-                self._ver_historia()
+                self._emitir_receta()
             elif op == "6":
-                self._ver_turnos()
+                self._ver_historia()
             elif op == "7":
-                self._ver_pacientes()
+                self._ver_turnos()
             elif op == "8":
-                self._ver_medicos()
+                self._ver_pacientes()
             elif op == "9":
+                self._ver_medicos()
+            elif op == "10":
                 print("¡Hasta luego!")
                 break
             else:
@@ -83,8 +87,16 @@ class CLI:
         """
         nombre = input("Nombre: ").strip()
         mat = input("Matrícula: ").strip()
-        esp = input("Especialidad: ").strip()
-        medico = Medico(nombre, mat, esp)
+        medico = Medico(nombre, mat)
+
+        tipo = input("Espcialidad medico: ").strip()
+        dias_input = input("Días que atiende (separados por comas): ").strip()
+        # Convertimos la cadena en lista y limpiamos espacios
+        dias = [d.strip() for d in dias_input.split(',') if d.strip()]
+        
+        especialidad = Especialidad(tipo, dias)
+
+        medico.agregar_especialidad(especialidad)
         self.__clinica__.agregar_medico(medico)
         print("Médico registrado.")
 
@@ -110,9 +122,26 @@ class CLI:
         except ValueError:
             # Error de parseo de fecha
             print("Formato de fecha inválido.")
-        except (PacienteNoExisteError, MedicoNoExisteError, TurnoDuplicadoError) as e:
+        except (PacienteNoExisteError, MedicoNoExisteError, TurnoDuplicadoError, EspecialidadNoDisponibleError) as e:
             # Errores de negocio delegados
             print("Error:", e)
+
+    def agregar_especialidad_a_medico(self):
+        mat = input("Matrícula médico: ").strip()
+        medico = self.__clinica__.obtener_medico_por_matricula(mat)
+        if not medico:
+            print("Médico no encontrado.")
+            return
+
+        tipo = input("Espcialidad medico: ").strip()
+        dias_input = input("Días que atiende (separados por comas): ").strip()
+        # Convertimos la cadena en lista y limpiamos espacios
+        dias = [d.strip() for d in dias_input.split(',') if d.strip()]
+        
+        especialidad = Especialidad(tipo, dias)
+        medico.agregar_especialidad(especialidad)
+        print("Especialidad añadida al médico.")
+
 
     def _emitir_receta(self):
         """

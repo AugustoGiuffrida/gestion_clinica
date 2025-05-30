@@ -8,6 +8,7 @@ from excepciones.excepciones import (
     PacienteNoExisteError,
     MedicoNoExisteError,
     TurnoDuplicadoError,
+    EspecialidadNoDisponibleError
 )
 
 class Clinica:
@@ -54,6 +55,96 @@ class Clinica:
         mat = medico.obtener_matricula()
         self.__medicos__[mat] = medico
 
+
+    def validar_existencia_paciente(self, dni):
+        """
+        Verifica que el paciente esté registrado.
+
+        Parámetros:
+            dni (str): DNI del paciente.
+
+        Excepciones:
+            PacienteNoExisteError: si el paciente no existe.
+        """
+        if dni not in self.__pacientes__:
+            raise PacienteNoExisteError(f"No existe paciente DNI {dni}.")
+
+
+    def validar_existencia_medico(self, matricula):
+        """
+        Verifica que el médico esté registrado.
+
+        Parámetros:
+            matricula (str): Matrícula del médico.
+
+        Excepciones:
+            MedicoNoExisteError: si el médico no existe.
+        """
+        if matricula not in self.__medicos__:
+            raise MedicoNoExisteError(f"No existe médico Matrícula {matricula}.")
+
+
+    def obtener_dia_semana_en_espanol(self, fecha_hora):
+        """
+        Traduce el día de la semana de una fecha a español.
+
+        Parámetros:
+            fecha_hora (datetime): Fecha y hora del turno.
+
+        Retorna:
+            str: Nombre del día de la semana en español (en minúsculas).
+        """
+        dias_es = {
+            'monday': 'lunes',
+            'tuesday': 'martes',
+            'wednesday': 'miércoles',
+            'thursday': 'jueves',
+            'friday': 'viernes',
+            'saturday': 'sábado',
+            'sunday': 'domingo'
+        }
+        dia_en = fecha_hora.strftime('%A').lower()
+        return dias_es.get(dia_en, dia_en)
+
+
+    def obtener_especialidad_disponible(self, medico, dia_semana):
+        """
+        Obtiene la especialidad del médico disponible en un día dado.
+
+        Parámetros:
+            medico (Medico): Objeto médico.
+            dia_semana (str): Día de la semana en español.
+
+        Retorna:
+            str: Especialidad disponible.
+
+        Excepciones:
+            EspecialidadNoDisponibleError: si no atiende ese día.
+        """
+        especialidad = medico.obtener_especialidad_para_dia(dia_semana)
+        if not especialidad:
+            raise EspecialidadNoDisponibleError(
+                f"El médico no atiende el día {dia_semana.capitalize()}."
+            )
+        return especialidad
+
+    def validar_turno_no_duplicado(self, matricula, fecha_hora):
+        """
+        Verifica que no exista ya un turno con el mismo médico en la misma fecha y hora.
+
+        Parámetros:
+            matricula (str): Matrícula del médico.
+            fecha_hora (datetime): Fecha y hora del nuevo turno.
+
+        Excepciones:
+            TurnoDuplicadoError: si ya existe ese turno.
+        """
+        for turno in self.__turnos__:
+            if (turno.obtener_fecha_hora() == fecha_hora and
+                turno.obtener_medico().obtener_matricula() == matricula):
+                raise TurnoDuplicadoError("Turno duplicado para ese médico/hora.")
+
+
     def agendar_turno(self, dni, matricula, fecha_hora):
         """
         Agenda un turno para un paciente con un médico en una fecha y hora específicas.
@@ -68,26 +159,24 @@ class Clinica:
             MedicoNoExisteError: si la matrícula no está registrada.
             TurnoDuplicadoError: si ya existe un turno para ese médico en esa fecha y hora.
         """
-        # Validar existencia de paciente
-        if dni not in self.__pacientes__:
-            raise PacienteNoExisteError(f"No existe paciente DNI {dni}.")
-        # Validar existencia de médico
-        if matricula not in self.__medicos__:
-            raise MedicoNoExisteError(f"No existe médico Matrícula {matricula}.")
 
-        # Validar que no haya duplicado: mismo médico y misma fecha_hora
-        for t in self.__turnos__:
-            # obtener_fecha_hora() compara fecha y hora exactos
-            if (t.obtener_fecha_hora() == fecha_hora
-                and t.__medico__.obtener_matricula() == matricula):
-                raise TurnoDuplicadoError("Turno duplicado para ese médico/hora.")
+        self.validar_existencia_medico(matricula)
+        self.validar_existencia_paciente(dni)
 
         # Recuperar objetos
         paciente = self.__pacientes__[dni]
         medico    = self.__medicos__[matricula]
+
+        dia_semana = self.obtener_dia_semana_en_espanol(fecha_hora)
+
+        especialidad = self.obtener_especialidad_disponible(medico, dia_semana)
+
+        self.validar_turno_no_duplicado(matricula, fecha_hora)
+
         # Crear y almacenar el nuevo turno
-        nuevo = Turno(paciente, medico, fecha_hora)
+        nuevo = Turno(paciente, medico, fecha_hora, especialidad)
         self.__turnos__.append(nuevo)
+
         # Añadir el turno a la historia clínica del paciente
         self.__historias_clinicas__[dni].agregar_turno(nuevo)
 
@@ -166,3 +255,6 @@ class Clinica:
         """
         # Tomamos los valores del diccionario _medicos y devolvemos una copia de la lista
         return list(self.__medicos__.values())
+
+    def obtener_medico_por_matricula(self, matricula):
+        return self.__medicos__.get(matricula)

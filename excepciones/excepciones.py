@@ -6,3 +6,6 @@ class MedicoNoExisteError(Exception):
 
 class TurnoDuplicadoError(Exception):
     pass
+
+class EspecialidadNoDisponibleError(Exception):
+    pass
